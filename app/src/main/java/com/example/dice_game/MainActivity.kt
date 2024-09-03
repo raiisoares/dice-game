@@ -125,15 +125,19 @@ private fun ScoreComponent(totalResult: Int, hits: Int, attempts: Int) {
     }
 
     Column(horizontalAlignment = Alignment.CenterHorizontally) {
-        InfoText(stringResource(R.string.score_text, totalResult))
 
         Row {
+            InfoText(stringResource(R.string.score_text, totalResult))
+
             InfoText(resultText)
+
             Icon(
                 painter = painterResource(iconResource),
                 contentDescription = null
             )
         }
+
+        Spacer(modifier = Modifier.height(16.dp))
 
         Row {
             InfoText(
