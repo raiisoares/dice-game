@@ -1,5 +1,6 @@
 package com.example.dice_game
 
+import android.annotation.SuppressLint
 import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
@@ -13,6 +14,7 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.wrapContentSize
 import androidx.compose.material3.Button
+import androidx.compose.material3.Icon
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -49,8 +51,9 @@ fun DiceWithButtonAndImage(modifier: Modifier = Modifier) {
     var resultDice1 by remember { mutableIntStateOf(1) }
     var resultDice2 by remember { mutableIntStateOf(1) }
     var totalResult by remember { mutableIntStateOf(0) }
-    var scoreText by remember { mutableStateOf("") }
-    var resultText by remember { mutableStateOf("") }
+    var hits by remember { mutableIntStateOf(0) }
+    var attempts by remember { mutableIntStateOf(0) }
+    var enableScoreDisplay by remember { mutableStateOf(false) }
 
     val imageResourceDice1 = getImageResource(resultDice1)
     val imageResourceDice2 = getImageResource(resultDice2)
@@ -81,24 +84,18 @@ fun DiceWithButtonAndImage(modifier: Modifier = Modifier) {
             resultDice1 = getRandomDiceValue()
             resultDice2 = getRandomDiceValue()
             totalResult = resultDice1 + resultDice2
-            scoreText = "Result: $totalResult"
-            resultText = if (totalResult == 7 || totalResult == 11) "You won!" else "You Lose!"
+            enableScoreDisplay = true
+            if (totalResult == 7 || totalResult == 11) hits++
+            attempts++
         }) {
             Text(stringResource(R.string.roll))
         }
 
         Spacer(modifier = Modifier.height(16.dp))
 
-        ScoreComponent(scoreText, resultText)
-    }
-}
-
-@Composable
-private fun ScoreComponent(scoreText: String, resultText: String) {
-    Text(scoreText)
-
-    Row {
-        Text(text = resultText)
+        if (enableScoreDisplay) {
+            ScoreComponent(totalResult, hits, attempts)
+        }
     }
 }
 
@@ -106,15 +103,58 @@ private fun ScoreComponent(scoreText: String, resultText: String) {
 private fun Header() {
     Column(horizontalAlignment = Alignment.CenterHorizontally) {
         Text(
-            text = "7 or 11 Game",
+            stringResource(R.string.game_title),
             fontSize = 40.sp,
             modifier = Modifier.padding(bottom = 24.dp)
         )
 
-        Text(
-            text = "Roll the dices and hit a total of 7 or 11 points to win!"
-        )
+        Text(stringResource(R.string.roll_instructions))
     }
+}
+
+@Composable
+private fun ScoreComponent(totalResult: Int, hits: Int, attempts: Int) {
+    val iconResource = when (totalResult) {
+        7, 11 -> R.drawable.check_circle_24dp_e8eaed_fill0_wght400_grad0_opsz24
+        else -> R.drawable.cancel_24dp_e8eaed_fill0_wght400_grad0_opsz24
+    }
+
+    val resultText = when (totalResult) {
+        7, 11 -> stringResource(R.string.hit_text)
+        else -> stringResource(R.string.fail_text)
+    }
+
+    Column(horizontalAlignment = Alignment.CenterHorizontally) {
+        InfoText(stringResource(R.string.score_text, totalResult))
+
+        Row {
+            InfoText(resultText)
+            Icon(
+                painter = painterResource(iconResource),
+                contentDescription = null
+            )
+        }
+
+        Row {
+            InfoText(
+                stringResource(
+                    R.string.score_info,
+                    hits,
+                    attempts,
+                    formatWinRatio(hits, attempts)
+                )
+            )
+        }
+    }
+}
+
+@Composable
+fun InfoText(text: String) {
+    Text(
+        text = text,
+        fontSize = 20.sp,
+        modifier = Modifier.padding(horizontal = 8.dp)
+    )
 }
 
 @Preview
@@ -140,4 +180,9 @@ fun getImageResource(result: Int): Int {
     }
 
     return imageResource
+}
+
+@SuppressLint("DefaultLocale")
+fun formatWinRatio(hits: Int, attempts: Int): String {
+    return String.format("%.2f", (hits.toFloat() / attempts.toFloat()) * 100) + "%"
 }

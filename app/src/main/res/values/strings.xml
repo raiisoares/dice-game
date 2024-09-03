@@ -1,4 +1,10 @@
 <resources>
     <string name="app_name">dice-game</string>
+    <string name="game_title">7 or 11 Game</string>
+    <string name="roll_instructions">Roll the dices and hit a total of 7 or 11 points to win!</string>
     <string name="roll">Roll</string>
+    <string name="score_text">Result: %1$d</string>
+    <string name="score_info">hits: %1$d | attempts: %2$d | Win ratio: %3$s</string>
+    <string name="hit_text">You won!</string>
+    <string name="fail_text">You Lost!</string>
 </resources>
